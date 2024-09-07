@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { View, Text, StatusBar, Image, FlatList, StyleSheet, ScrollView, TouchableOpacity, Button} from 'react-native';
 import { useTheme } from './src/context/ThemeContext';
+import MyStyle from './src/MyStyle';
 
 const musicList = [
     {
@@ -64,18 +65,19 @@ const musicList = [
         artist: 'Bini'
     },
 ];
-const Item = ({item, onPress}) => (
-    <TouchableOpacity style={styles.item} onPress={onPress}>
+
+const Item = ({ item, onPress, theme }) => (
+    <TouchableOpacity style={[MyStyle.item, theme === 'light' ? MyStyle.lightItem : MyStyle.darkItem]} onPress={onPress}>
         <View>
-            {item.image && <Image source={item.image} style={styles.image} />}
+            {item.image && <Image source={item.image} style={MyStyle.image} />}
         </View>
-        <View style={{justifyContent: 'space-around'}}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={{fontSize:15}}>Artist: {item.artist}</Text>   
+        <View style={{ justifyContent: 'space-around' }}>
+            <Text style={[MyStyle.title, theme === 'light' ? MyStyle.lightText : MyStyle.darkText]}>{item.title}</Text>
+            <Text style={[MyStyle.artist, theme === 'light' ? MyStyle.lightText : MyStyle.darkText]}>Artist: {item.artist}</Text>   
         </View>
-        <View style={styles.spacer}/>
-        <View style={{justifyContent:'center', alignItems:'center'}}>
-            <Image source={require("./assets/music-images/play.png")} style={styles.playBtn}></Image>
+        <View style={MyStyle.spacer}/>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Image source={require("./assets/music-images/play.png")} style={MyStyle.playBtn}></Image>
         </View>
     </TouchableOpacity>
 );
@@ -87,6 +89,13 @@ const MainComponent = () => {
     const [selectedImage, setSelectedImage] = React.useState('');
     const [isPlaying, setIsPlaying] = React.useState(false);
     const [progress, setProgress] = React.useState(0);
+    const { theme, toggleTheme } = useTheme();
+
+    const primaryColor = '#023020';
+    const secondaryColor ='red';
+    const tertiaryColor = '#663399';
+
+    const [defaultColor, setColor] = React.useState(primaryColor);
 
     useEffect(() => {
         let interval;
@@ -105,152 +114,140 @@ const MainComponent = () => {
 
     const handlePlayPausePress = () => {
         setIsPlaying(!isPlaying);
-    }
+    };
 
-    const renderItem = ({item}) => {
-        return(
-            <Item
-                item={item}
-                onPress={()=> {
-                    setSelectedId(item.id);
-                    setSelectedArtist(item.artist);
-                    setSelectedImage(item.image);
-                    setSelectedTitle(item.title);
-                    setProgress(0);
-                    setIsPlaying(true);
-                }}
-            />
-        );
-    } 
+    const handleColorChange = (color) => {
+        setColor(color);
+    };
+
+    const renderItem = ({ item }) => (
+        <Item
+            item={item}
+            theme={theme}
+            onPress={() => {
+                setSelectedId(item.id);
+                setSelectedArtist(item.artist);
+                setSelectedImage(item.image);
+                setSelectedTitle(item.title);
+                setProgress(0);
+                setIsPlaying(true);
+            }}
+        />
+    );
+
+    const ListHeader = () => (
+        <View>
+            <View style={[MyStyle.header, { backgroundColor: theme === 'light' ? defaultColor : '#333' }]}>
+                <Text style={MyStyle.headerText}>iFumes: Music Player</Text>
+                <Image source={require('./assets/musicLogo.gif')} style={MyStyle.logo} />
+            </View>
+            <View style={MyStyle.tabs}>
+                <Text style={[MyStyle.tabText, theme === 'light' ? MyStyle.lightTabText : MyStyle.darkTabText]}>Songs</Text>
+                <Text style={theme === 'light' ? MyStyle.lightText : MyStyle.darkText}>Artist</Text>
+                <Text style={theme === 'light' ? MyStyle.lightText : MyStyle.darkText}>Albums</Text>
+                <Text style={theme === 'light' ? MyStyle.lightText : MyStyle.darkText}>Folders</Text>
+            </View>
+        </View>
+    );
+
     return (
         <>
-            <StatusBar style="auto"/>
-            
-            {(selectedId === 0) ?
-
-                <ScrollView style={{flex : 1, width: '100%'}}>
-                    <View style={{backgroundColor: '#023020', height: 'auto', justifyContent: 'space-between', display: 'flex', flexDirection:'row', alignItems:'center', paddingLeft: 30, paddingVertical: 5}}>
-                        <View>
-                            <Text style={{fontSize:25, fontWeight: 'bold', color: 'white'}}>iFumes: Music Player</Text>
-                        </View>
-                        <View>
-                            <Image
-                                style={{
-                                    resizeMode: 'contain',
-                                    height: 100,
-                                }}
-                                source={require('./assets/musicLogo.gif')}
-                            />
-                        </View>
-                    </View>
-                    <View style={{height: 'auto',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingHorizontal: 100,
-                        paddingVertical: 20
-                        }}>
-                        <Text style={{fontSize:16, color: 'red', fontWeight:'bold', borderBottomColor: 'red', borderBottomWidth: 2}}>Songs</Text>
-                        <Text style={{fontSize:16}}>Artist</Text>
-                        <Text style={{fontSize:16}}>Albums</Text>
-                        <Text style={{fontSize:16}}>Folders</Text>
-                    </View>
-                    <FlatList 
-                        data={musicList} 
-                        renderItem={renderItem}
-                        keyExtractor={item => item.id}
-                        extraData={selectedId}>
-                    </FlatList>
-                </ScrollView>
-                : 
-                <View style={{ flex:1 , backgroundColor: '#023020'}}>
-                    <Button title="Back" onPress={() => {setSelectedId(0); }}></Button>
+            <StatusBar style="auto" />    
+            {(selectedId === 0) ? 
+                <FlatList 
+                    ListHeaderComponent={ListHeader}
+                    data={musicList} 
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    extraData={selectedId}
+                    style={theme === 'light' ? MyStyle.lightContainer : MyStyle.darkContainer}
+                />
+             
+             : 
+                <View style={[{ flex: 1 }, theme === 'light' ? MyStyle.lightContainer : MyStyle.darkContainer]}>
+                    <TouchableOpacity onPress={() => { setSelectedId(0); }} style={MyStyle.backButton}>
+                        <Image source={require('./assets/back-icon.png')} style={[MyStyle.backIcon , theme === 'light' ? MyStyle.lightIcon : MyStyle.darkIcon]} />
+                        <Text style={[MyStyle.backText, theme === 'light' ? MyStyle.lightText : MyStyle.darkText]}>Back</Text>
+                    </TouchableOpacity>
                     <View style={{ flex: 1 }}>
-                        {/* <Text>{selectedArtist}</Text> */}
-                            <View style={{alignItems: 'center'}}>
-                                {selectedImage && (<Image source={selectedImage} style={{width: '90%', height:500, resizeMode:'contain'}}></Image>)}
-                             
-
-                            </View>
-                            <View style={{marginHorizontal: 20}}>
-                                <Text style={{fontWeight:'bold', fontSize: 30, color: '#fff'}}>{selectedTitle}</Text>
-                                <Text style={{fontSize: 16, marginTop:4, color: '#fff'}}>Artist: {selectedArtist}</Text>
-                            </View>
-                            <View style={{height: 5, backgroundColor: 'grey', width: '95%', marginHorizontal:10, marginTop: 20}}>
-                                <View
-                                    style={{
-                                        height: '100%',
-                                        backgroundColor: 'black',
-                                        width: `${progress}%`
-                                    }}
-                                    />
-                            </View>
-                            <View style={{ flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    paddingHorizontal: 100,
-                                    paddingVertical: 20}}
-                            >
+                        <View style={{ alignItems: 'center'}}>
+                            {selectedImage && (
+                                <Image source={selectedImage} style={MyStyle.selectedImage} />
+                            )}
+                        </View>
+                        <View style={MyStyle.details}>
+                            <Text style={[{fontSize: 30, fontWeight: 'bold'}, theme === 'light' ? MyStyle.lightText : MyStyle.darkText]}>{selectedTitle}</Text>
+                            <Text style={[MyStyle.artist, theme === 'light' ? MyStyle.lightText : MyStyle.darkText]}>Artist: {selectedArtist}</Text>
+                        </View>
+                        <View style={MyStyle.progressBar}>
+                            <View style={[MyStyle.progress, { width: `${progress}%`, backgroundColor: theme === 'light' ? defaultColor : 'white' }]} />
+                        </View>
+                        <View style={MyStyle.controls}>
+                            <Image source={require('./assets/music-images/prev-icon.png')} style={[MyStyle.controlIcon, {tintColor : theme === 'light' ? defaultColor : '#fff'}]} />
+                            <TouchableOpacity onPress={handlePlayPausePress}>
                                 <Image
-                                    source={require('./assets/music-images/prev-icon.png')}
-                                    style={{ width: 30, height: 30, tintColor: 'white'}} 
+                                    source={isPlaying ? require('./assets/music-images/pause-icon-2.png') : require('./assets/music-images/play-icon-2.png')}
+                                    style={[MyStyle.playPauseIcon, {tintColor : theme === 'light' ? defaultColor : '#fff'}]}
                                 />
-                                <TouchableOpacity onPress={handlePlayPausePress}>
-                                    <Image
-                                        source={
-                                            isPlaying
-                                            ? require('./assets/music-images/pause-icon-2.png')
-                                            : require('./assets/music-images/play-icon-2.png')}
-                                        style={{ width: 70, height: 70, tintColor: 'white'}}
-                                    />
-                                  
-                                </TouchableOpacity>
-                                 <Image
-                                    source={require('./assets/music-images/next-icon-2.png')}
-                                    style={{ width: 30, height: 30, tintColor: 'white'}}
-                                />
-                            </View>
-
-                          
+                            </TouchableOpacity>
+                            <Image source={require('./assets/music-images/next-icon-2.png')} style={[MyStyle.controlIcon, {tintColor : theme === 'light' ? defaultColor : '#fff'}]} />
+                        </View>
                     </View>
                 </View>
-                
-              
-                }
-           
+            }
+            <View style={{paddingHorizontal:15, borderTopColor: 'rgba(2, 48, 32, 0.5)', borderTopWidth: 1, backgroundColor:'#D3D3D3', justifyContent:'space-between', flexDirection:'row'}}>
+                <TouchableOpacity onPress={toggleTheme} style={MyStyle.backButton}>
+                    <Image 
+                        source={require('./assets/darkmode.png')}
+                        style={[
+                            { width: 30, height: 30 },
+                            { tintColor: theme === 'light' ? 'white' : '#023020' } 
+                        ]}
+                    />
+                     <Text 
+                        style={[
+                            { marginLeft: 6 },
+                            { color: theme === 'light' ? 'white' : '#023020' },
+                            theme === 'dark' && { fontWeight: 'bold' }
+                        ]}>Dark Mode
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>handleColorChange(primaryColor)} style={MyStyle.backButton}>
+                    <Image 
+                        source={require('./assets/theme.png')}
+                        style={[
+                            { width: 30, height: 30, tintColor: primaryColor}
+                        ]}
+                    />
+                     <Text 
+                        style={{ marginLeft: 6 }}>Theme 1
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity  onPress={()=>handleColorChange(secondaryColor)} style={MyStyle.backButton}>
+                    <Image 
+                        source={require('./assets/theme.png')}
+                        style={[
+                            { width: 30, height: 30, tintColor: secondaryColor}
+                        ]}
+                    />
+                    <Text 
+                        style={{ marginLeft: 6 }}>Theme 2
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity  onPress={()=>handleColorChange(tertiaryColor)} style={MyStyle.backButton}>
+                    <Image 
+                        source={require('./assets/theme.png')}
+                        style={[
+                            { width: 30, height: 30, tintColor: tertiaryColor}
+                        ]}
+                    />
+                    <Text 
+                        style={{ marginLeft: 6 }}>Theme 3
+                    </Text>
+                </TouchableOpacity>
+            </View>       
         </>
-    )
-}
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: StatusBar.currentHeight || 0,
-    },
-    item: {
-    borderBottomColor: 'rgba(2, 48, 32, 0.5)',
-      borderBottomWidth: 1,
-      padding: 10,
-    //   marginVertical: 2,
-      marginHorizontal: 10,
-      flexDirection: 'row',
+    );
+};
 
-
-    },
-    title: {
-      fontSize: 18,
-      fontWeight:'bold'
-    },
-    image: {
-        width: 50,
-        height: 50,
-        marginRight: 10,
-    },
-    playBtn: {
-        width: 20,
-        height: 20,
-    },
-    spacer: {
-        flex: 1
-    }
-  });
-export default MainComponent
+export default MainComponent;

@@ -5,9 +5,12 @@ const ThemeContext = React.createContext('light');
 const ThemeContextProvider =  ({children}) => {
     const [theme, setTheme] = React.useState('light');
 
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    }
 
     return (
-        <ThemeContext.Provider value={{ theme, setTheme}}>
+        <ThemeContext.Provider value={{ theme, toggleTheme}}>
             {children}
         </ThemeContext.Provider>
     )
