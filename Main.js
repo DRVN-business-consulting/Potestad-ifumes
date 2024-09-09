@@ -195,19 +195,19 @@ const MainComponent = () => {
                     </View>
                 </View>
             }
-            <View style={{paddingHorizontal:15, borderTopColor: 'rgba(2, 48, 32, 0.5)', borderTopWidth: 1, backgroundColor:'#D3D3D3', justifyContent:'space-between', flexDirection:'row'}}>
+            <View style={{paddingHorizontal:10, borderTopColor: 'rgba(2, 48, 32, 0.5)', borderTopWidth: 1, backgroundColor:'#D3D3D3', justifyContent:'space-between', flexDirection:'row'}}>
                 <TouchableOpacity onPress={toggleTheme} style={MyStyle.backButton}>
                     <Image 
                         source={require('./assets/darkmode.png')}
                         style={[
-                            { width: 30, height: 30 },
-                            { tintColor: theme === 'light' ? 'white' : '#023020' } 
+                            { width: 25, height: 25 },
+                            { tintColor: theme === 'light' ? 'white' : '#022520' } 
                         ]}
                     />
                      <Text 
                         style={[
                             { marginLeft: 6 },
-                            { color: theme === 'light' ? 'white' : '#023020' },
+                            { color: theme === 'light' ? 'white' : '#022520' },
                             theme === 'dark' && { fontWeight: 'bold' }
                         ]}>Dark Mode
                     </Text>
@@ -216,7 +216,7 @@ const MainComponent = () => {
                     <Image 
                         source={require('./assets/theme.png')}
                         style={[
-                            { width: 30, height: 30, tintColor: primaryColor}
+                            { width: 25, height: 25, tintColor: primaryColor}
                         ]}
                     />
                      <Text 
@@ -227,7 +227,7 @@ const MainComponent = () => {
                     <Image 
                         source={require('./assets/theme.png')}
                         style={[
-                            { width: 30, height: 30, tintColor: secondaryColor}
+                            { width: 25, height: 25, tintColor: secondaryColor}
                         ]}
                     />
                     <Text 
@@ -238,7 +238,7 @@ const MainComponent = () => {
                     <Image 
                         source={require('./assets/theme.png')}
                         style={[
-                            { width: 30, height: 30, tintColor: tertiaryColor}
+                            { width: 25, height: 25, tintColor: tertiaryColor}
                         ]}
                     />
                     <Text 
